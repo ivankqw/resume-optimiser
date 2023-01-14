@@ -89,31 +89,32 @@ def rewrite_resume(parsed_resume, jd_keywords):
     new_projects = get_gpt3_response(get_resume_prompt(jd_keywords, projects), api_key)
     
     x= new_experience.count('.')
-    print(new_experience)
-    print(x)
+    #Replace opening \n
+    new_experience= new_experience.replace('\n\n','',1)
+    #Replace \n between job and job description
+    new_experience= new_experience.replace('\n\n','\n\u2022',1)
+    #Remove the rest
+    #If have fullstop
     if x:
-        new_experience= new_experience.replace('\n\n','\n\u2022 ',1)
         new_experience = new_experience.replace('\n',' ')
-        new_experience = new_experience.replace('.','\n\u2022',new_experience.count('.')-1)
+        #replace fullstops
+        new_experience = new_experience.replace('.','\n\u2022',x-1)
     else:
-        new_experience = new_experience.replace('\n\n','\n\u2022',new_experience.count('.')-1)
-        new_experience = new_experience.replace('\n','\n\u2022',new_experience.count('.')-1)
-    
-    #print(new_experience)
-    new_skills =new_skills.replace('.','\n\u2022',new_skills.count('.')-1)
-    #print(new_skills)
-    #new_projects = '\u2022'+ new_projects
+        #replace all \n
+        new_experience = new_experience.replace('\n','\n\u2022')
     
     y= new_projects.count('.')
-    print(new_projects)
-    print(y)
+    #Replace opening \n
+    new_projects= new_projects.replace('\n\n','\n\u2022',1)
+    #Remove the rest
+    #If have fullstop
     if y:
-        new_projects=new_projects.replace('\n\n','\n\u2022 ',1)
         new_projects = new_projects.replace('\n',' ')
-        new_projects=new_projects.replace('.','\n\u2022',new_projects.count('.')-1)
+        #replace fullstops
+        new_projects = new_projects.replace('.','\n\u2022',y-1)
     else:
-        new_projects=new_projects.replace('\n\n','\n\u2022',new_projects.count('.')-1)
-        new_projects=new_projects.replace('\n','\n\u2022',new_projects.count('.')-1)
+        #replace all \n
+        new_projects = new_projects.replace('\n','\n\u2022')
 
     #print(new_projects)
     d = {}
