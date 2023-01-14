@@ -12,9 +12,9 @@ from resume_parse import *
 from gpt3_wrapper import *
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.UNITED])
-app.layout = html.Div(id = "view1",children=[
+app.layout = dbc.Container(id = "view1",children=[
     html.H1('Resume Optimiser', style={'textAlign':'center'}),
-    html.H4('Powered by ChatGPT', style={'textAlign':'center'}),
+    html.H4('Powered by GPT-3', style={'textAlign':'center'}),
     html.Div(
         [
             dbc.Row(
@@ -26,8 +26,8 @@ app.layout = html.Div(id = "view1",children=[
                         html.Br(),
                      dbc.Textarea(id="job-description", placeholder="Copy Job Description Here")
                     ])]),
-                    dbc.Col(id = "boost", children=[dbc.Label("Bullshit Meter", html_for="slider"),
-                    dcc.Slider(id="bullshit", min=0, max=10, step=1, value=3),
+                    dbc.Col(id = "boost", children=[dbc.Label("Boost Meter", html_for="slider"),
+                    dcc.Slider(id="boost_score", min=0, max=10, step=1, value=3),
                     html.Div([dbc.Button("Boost Resume",color="primary",id="boost-btn",n_clicks=0),
                     html.Br(),
                     html.Br(),
@@ -43,8 +43,9 @@ app.layout = html.Div(id = "view1",children=[
     )
 
 
-])
-def parse_contents(contents, filename, jd):
+], fluid=True)
+def parse_contents(contents, filename, jd, boost_score):
+    print(boost_score)
     content_type, content_string = contents.split(',')
     decoded = base64.b64decode(content_string)
     if 'docx' in filename:
@@ -62,10 +63,9 @@ def parse_contents(contents, filename, jd):
         # use gpt-3 to extract keywords from jd 
         keywords = get_keywords(jd)
         # use keywords to rewrite resume
-        result = rewrite_resume(resume_dict, keywords)
+        result = rewrite_resume(resume_dict, keywords, boost_score)
         #print(result)
         return  'NEW EXPERIENCE: \n' + result.get('experience')  + '\n\n NEW SKILLS: \n' + result.get('skills') +'\n\n NEW PROJECTS: \n' + result.get('projects')
-            
         #return f'OLD EXPERIENCE: {experience} \n\n NEW EXPERIENCE:' + result.get('experience')  + f'\n\n OLD SKILLS: {skills} \n\n NEW SKILLS: ' + result.get('skills') +  f'\n\n OLD PROJECTS: {projects} \n\n NEW PROJECTS: ' + result.get('projects')
     else:
         return 'Invalid file type'
@@ -88,14 +88,13 @@ def show_upload_name(filename):
     State('file_upload', 'contents'),
     State('file_upload', 'filename'),
     State('job-description','value'),
-    State('bullshit','value')
+    State('boost_score','value')
     )
 
-def update_output(n_clicks,contents, filename, jd, bullshit):
-    if contents and filename and jd and bullshit and n_clicks:
-        x= parse_contents(contents, filename, jd)
+def update_output(n_clicks,contents, filename, jd, boost_score):
+    if contents and filename and jd and boost_score and n_clicks:
+        x= parse_contents(contents, filename, jd, boost_score)
         return x, "Done!"
-    #print(jd)
 
 @app.callback(
     Output('download-text','data'),
