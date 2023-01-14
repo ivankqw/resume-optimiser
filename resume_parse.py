@@ -4,7 +4,7 @@ import re
 
 """
 def extract_experiences(text):
-    experience_section = re.search("(?i)experience.*?(?=education|skills|$)", text, re.DOTALL)
+    experience_section = re.search("(?i)experience.*?(?=education|skills|projects|$)", text, re.DOTALL)
     if experience_section:
         return experience_section.group()
     else:
@@ -15,9 +15,11 @@ def extract_experiences(text):
 
 """
 def extract_skills(text):
-    skills_section = re.search("(?i)skills.*?(?=experience|education|$)", text, re.DOTALL)
+    skills_section = re.search("(?i)skills.*?(?=experience|education|projects|$)", text, re.DOTALL)
     if skills_section:
         return skills_section.group()
     else:
         return None
- 
+
+if __name__ == "__main__":
+    pass

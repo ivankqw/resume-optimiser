@@ -7,6 +7,7 @@ from dash import Input, Output, State
 import base64
 import docx
 import io
+from resume_parse import *
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.UNITED])
 app.layout = html.Div(children=[
@@ -33,11 +34,21 @@ app.layout = html.Div(children=[
             )
         ]
     )
+
+
 ])
-def parse_contents(contents, filename, date):
+def parse_contents(contents, filename):
     content_type, content_string = contents.split(',')
     decoded = base64.b64decode(content_string)
-    return decoded
+    if 'docx' in filename:
+        # read docx
+        doc = docx.Document(io.BytesIO(decoded))
+        parsed_resume = '\n\n'.join([paragraph.text for paragraph in doc.paragraphs])
+        experiences = extract_experiences(parsed_resume)
+        skills = extract_skills(parsed_resume)
+        return "EXPERIENCE: " + experiences + "\n\n" + "SKILLS: " + skills  
+    else:
+        return 'Invalid file type'
 
 @app.callback(
     Output('output_area','value'), 
