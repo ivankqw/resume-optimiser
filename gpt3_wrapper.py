@@ -73,29 +73,33 @@ def rewrite_resume(parsed_resume, jd_keywords, boost_score):
     new_skills = get_gpt3_response(get_resume_prompt(jd_keywords, "skills", skills, boost_score), api_key)
     new_projects = get_gpt3_response(get_resume_prompt(jd_keywords, "projects", projects, boost_score), api_key)
     
-    x = new_experience.count('.')
-    print(new_experience)
-    print(x)
+    x= new_experience.count('.')
+    #Replace opening \n
+    new_experience= new_experience.replace('\n\n','',1)
+    #Replace \n between job and job description
+    new_experience= new_experience.replace('\n\n','\n\u2022',1)
+    #Remove the rest
+    #If have fullstop
     if x:
-        new_experience= new_experience.replace('\n\n','\n\u2022 ',1)
         new_experience = new_experience.replace('\n',' ')
-        new_experience = new_experience.replace('.','\n\u2022',new_experience.count('.')-1)
+        #replace fullstops
+        new_experience = new_experience.replace('.','\n\u2022',x-1)
     else:
-        new_experience = new_experience.replace('\n\n','\n\u2022',new_experience.count('.')-1)
-        new_experience = new_experience.replace('\n','\n\u2022',new_experience.count('.')-1)
+        #replace all \n
+        new_experience = new_experience.replace('\n','\n\u2022')
     
-    new_skills =new_skills.replace('.','\n\u2022',new_skills.count('.')-1)
-    
-    y = new_projects.count('.')
-    print(new_projects)
-    print(y)
+    y= new_projects.count('.')
+    #Replace opening \n
+    new_projects= new_projects.replace('\n\n','\n\u2022',1)
+    #Remove the rest
+    #If have fullstop
     if y:
-        new_projects=new_projects.replace('\n\n','\n\u2022 ',1)
         new_projects = new_projects.replace('\n',' ')
-        new_projects=new_projects.replace('.','\n\u2022',new_projects.count('.')-1)
+        #replace fullstops
+        new_projects = new_projects.replace('.','\n\u2022',y-1)
     else:
-        new_projects=new_projects.replace('\n\n','\n\u2022',new_projects.count('.')-1)
-        new_projects=new_projects.replace('\n','\n\u2022',new_projects.count('.')-1)
+        #replace all \n
+        new_projects = new_projects.replace('\n','\n\u2022')
 
     d = {}
     d['experience'] = new_experience
