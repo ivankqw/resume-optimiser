@@ -33,18 +33,11 @@ app.layout = html.Div(children=[
             )
         ]
     )
-
-
 ])
-def parse_contents(contents, filename):
+def parse_contents(contents, filename, date):
     content_type, content_string = contents.split(',')
     decoded = base64.b64decode(content_string)
-    if 'docx' in filename:
-        # read docx
-        doc = docx.Document(io.BytesIO(decoded))
-        return '\n\n'.join([paragraph.text for paragraph in doc.paragraphs])
-    else:
-        return 'Invalid file type'
+    return decoded
 
 @app.callback(
     Output('output_area','value'), 
