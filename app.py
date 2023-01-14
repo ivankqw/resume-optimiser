@@ -44,18 +44,20 @@ def parse_contents(contents, filename, jd):
         # read docx
         doc = docx.Document(io.BytesIO(decoded))
         parsed_resume = '\n\n'.join([paragraph.text for paragraph in doc.paragraphs])
-        # extract experiences and skills
+        # extract experiences, skills and projects 
         experience = extract_experiences(parsed_resume)
         skills = extract_skills(parsed_resume)
+        projects = extract_projects(parsed_resume)
         resume_dict = {}
         resume_dict['experience'] = experience
         resume_dict['skills'] = skills
+        resume_dict['projects'] = projects
         # use gpt-3 to extract keywords from jd 
         keywords = get_keywords(jd)
         # use keywords to rewrite resume
         result = rewrite_resume(resume_dict, keywords)
         print(result)
-        return "OLD EXPERIENCE: " + experience + "NEW EXPERIENCE: " + result.get('experience') + "\n\n" + "OLD SKILLS: " + skills +  "\n\n" + "NEW SKILLS: " + result.get('skills')  
+        return f'OLD EXPERIENCE: {experience} \n\n NEW EXPERIENCE:' + result.get('experience') +  f'\n\n OLD SKILLS: {skills} \n\n NEW SKILLS: ' + result.get('skills') +  f'\n\n OLD PROJECTS: {projects} \n\n NEW PROJECTS: ' + result.get('projects')
     else:
         return 'Invalid file type'
 
