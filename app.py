@@ -13,7 +13,7 @@ from gpt3_wrapper import *
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.UNITED])
 app.layout = html.Div(children=[
     html.H1('Resume Optimiser', style={'textAlign':'center'}),
-    html.H4('Powered by GPT-3', style={'textAlign':'center'}),
+    html.H4('Powered by ChatGPT', style={'textAlign':'center'}),
     html.Div(
         [
             dbc.Row(
@@ -21,9 +21,10 @@ app.layout = html.Div(children=[
                     dbc.Col(html.Div(children = [
                         dcc.Upload(id = "file_upload", children = html.Div(['Drag and Drop or ',
             html.A('Select Files')])),
-                     dbc.Input(id="job-description", placeholder="Copy Job Description Here", type="text")
+                        html.Br(),
+                     dbc.Textarea(id="job-description", placeholder="Copy Job Description Here")
                     ])),
-                    dbc.Col(html.Div(children = [dbc.Input(id="output_area", placeholder="New Resume", type="text")]))
+                    dbc.Col(html.Div(children = [dbc.Textarea(id="output_area", placeholder="New Resume")]))
                 ]
             )
         ]

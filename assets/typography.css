@@ -2,3 +2,23 @@ body {
     background: rgb(238,174,202);
     background: radial-gradient(circle, rgba(238,174,202,1) 0%, rgba(148,187,233,1) 100%);
 }
+
+#job-description {
+    width: 500px;
+    height: 325px;
+    text-align: left;
+
+}
+
+#output_area{
+    width: 500px;
+    height: 450px;
+    text-align: left;
+}
+
+#file_upload {
+    border: dotted;
+    width: 500px;
+    height: 75px;
+    text-align: center;
+}
