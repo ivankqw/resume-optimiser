@@ -65,6 +65,14 @@ def get_keywords(jd_input):
     )
     return get_gpt3_response(jd_prompt, api_key)
 
+""" form_resume_prompt
+"""
+
+def get_resume_prompt(jd_keywords, section):
+    return f'Please try to add the following keywords: {jd_keywords} to this extract of the \
+        experience section of the following resume: {section}. Do not change the format and any of the original text \
+            while making the resulting text seem believable:'
+
 """ rewrite_resume
 Rewrite a resume using extracted keywords
 Takes in parsed_resume dict object 
@@ -74,32 +82,16 @@ Returns string
 def rewrite_resume(parsed_resume, jd_keywords): 
     experience = parsed_resume.get("experience")
     skills = parsed_resume.get("skills")
-    print("KEYWORDS", jd_keywords)
-    print("SKILLS", skills)
-    print("EXPERIENCE", experience)
-
-    experience_prompt = (
-        "Please add the following keywords: " + 
-        jd_keywords + 
-        "to this extract of the experience section of the following resume: " + 
-        experience + 
-        ".And do not change the format and any of the original text: " 
-    )
-
-    skills_prompt = (
-        "Please add the following keywords: " + 
-        jd_keywords + 
-        "to this extract of the skills section of the following resume: " + 
-        skills + 
-        ".And do not change the format and any of the original text: " 
-    )
-
-    new_experience = get_gpt3_response(experience_prompt, api_key)
-    new_skills = get_gpt3_response(skills_prompt, api_key)
+    projects = parsed_resume.get("projects")
+    
+    new_experience = get_gpt3_response(get_resume_prompt(jd_keywords, experience), api_key)
+    new_skills = get_gpt3_response(get_resume_prompt(jd_keywords, skills), api_key)
+    new_projects = get_gpt3_response(get_resume_prompt(jd_keywords, projects), api_key)
 
     d = {}
     d['experience'] = new_experience
     d['skills'] = new_skills
+    d['projects'] = new_projects
     return d
 
 print(get_keywords(jd_input))
