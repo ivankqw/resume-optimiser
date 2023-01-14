@@ -21,9 +21,11 @@ app.layout = html.Div(children=[
                     dbc.Col(html.Div(children = [
                         dcc.Upload(id = "file_upload", children = html.Div(['Drag and Drop or ',
             html.A('Select Files')])),
+                        html.Div(id="file-name",children="No File Uploaded"),
                         html.Br(),
                      dbc.Textarea(id="job-description", placeholder="Copy Job Description Here")
                     ])),
+                    dbc.Col(id = "boost", children=[dbc.Button("Boost Resume",color="primary",id="boost-btn",n_clicks=0)]),
                     dbc.Col(html.Div(children = [dbc.Textarea(id="output_area", placeholder="New Resume")]))
                 ]
             )
@@ -55,13 +57,25 @@ def parse_contents(contents, filename, jd):
         return 'Invalid file type'
 
 @app.callback(
-    Output('output_area','value'), 
-    Input('file_upload', 'contents'),
-    Input('file_upload', 'filename'),
-    Input('job-description','value')
+    Output("file-name", 'children'),
+    Input('file_upload', 'filename')
+)
+
+def show_upload_name(filename):
+    if filename:
+        return filename
+    else:
+        return "No File Uploaded"
+
+@app.callback(
+    Output('output_area','value'),
+    Input('boost-btn','n_clicks'), 
+    State('file_upload', 'contents'),
+    State('file_upload', 'filename'),
+    State('job-description','value')
     )
 
-def update_output(contents, filename, jd):
+def update_output(n_clicks,contents, filename, jd):
     if contents is not None:
         return parse_contents(contents, filename, jd)
     print(jd)

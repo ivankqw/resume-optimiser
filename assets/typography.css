@@ -22,3 +22,12 @@ body {
     height: 75px;
     text-align: center;
 }
+
+#file-name {
+    width: 500px;
+}
+
+#boost {
+    padding-top: 200px;
+    text-align: center;
+}
