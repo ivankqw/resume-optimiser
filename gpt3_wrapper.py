@@ -28,11 +28,12 @@ Experienced in Machine Learning and Deep Learning models;
 Makes a POST request to the Open AI GPT3 Completions Endpoint 
 """
 
-def get_gpt3_response(prompt="", api_key="", model="text-davinci-003", top_p=1):
+def get_gpt3_response(prompt="", api_key="", model="text-davinci-003", top_p=1, max_tokens=1000):
     payload = {
         "model": model,
         "prompt": prompt,
-        "top_p": top_p
+        "top_p": top_p,
+        "max_tokens": max_tokens
     }
 
     # Make the request
@@ -75,19 +76,25 @@ def rewrite_resume(parsed_resume, jd_keywords):
     skills = parsed_resume.get("skills")
 
     experience_prompt = (
-        "Rewrite the following text by adding in the following words" +
+        "Please add the following keywords to this extract of the experience section of a resume. Do not change the format: " +
         jd_keywords 
     )
 
     skills_prompt = (
-        "Rewrite the following text by adding in the following words" +
+        "Please add the following keywords to this extract of the skills section of a resume. Do not change the format: " +
         jd_keywords
     )
 
-    return {
-        experience: get_gpt3_response(experience_prompt, api_key),
-        skills: get_gpt3_response(skills_prompt, api_key)
-    }
+    new_experience = get_gpt3_response(experience_prompt, api_key)
+    new_skills = get_gpt3_response(skills_prompt, api_key)
+
+    d = {}
+    d['experience'] = new_experience
+    d['skills'] = new_skills
+
+    print("FROM GPT-3", new_experience, "\n", new_skills)
+
+    return d
 
 print(get_keywords(jd_input))
 
