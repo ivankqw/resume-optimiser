@@ -25,7 +25,10 @@ app.layout = html.Div(children=[
                         html.Br(),
                      dbc.Textarea(id="job-description", placeholder="Copy Job Description Here")
                     ])),
-                    dbc.Col(id = "boost", children=[dbc.Button("Boost Resume",color="primary",id="boost-btn",n_clicks=0)]),
+                    dbc.Col(id = "boost", children=[dbc.Label("Bullshit Meter", html_for="slider"),
+                    dcc.Slider(id="bullshit", min=0, max=10, step=1, value=3),
+                    dbc.Button("Boost Resume",color="primary",id="boost-btn",n_clicks=0)
+                    ]),
                     dbc.Col(html.Div(children = [dbc.Textarea(id="output_area", placeholder="New Resume")]))
                 ]
             )
@@ -72,10 +75,10 @@ def show_upload_name(filename):
     Input('boost-btn','n_clicks'), 
     State('file_upload', 'contents'),
     State('file_upload', 'filename'),
-    State('job-description','value')
+    State('job-description','value'),
+    State('bullshit','value')
     )
-
-def update_output(n_clicks,contents, filename, jd):
+def update_output(n_clicks,contents, filename, jd, bullshit):
     if contents is not None:
         return parse_contents(contents, filename, jd)
     print(jd)
