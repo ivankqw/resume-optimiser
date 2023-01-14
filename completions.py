@@ -49,6 +49,12 @@ def get_keywords(jd_input):
     )
     return get_gpt3_response(jd_prompt, api_key)
 
+""" keywords_to_list
+Parse keywords into list with whitespaces removed
+"""
+def keywords_to_list(keywords):
+    return [word.strip() for word in get_keywords(keywords).split(",")]
+
 """ get_resume_prompt
 Get Resume Prompt by different sections
 """
@@ -109,3 +115,20 @@ def rewrite_resume(parsed_resume, jd_keywords, boost_score):
     return d
 
 
+print([word.strip() for word in get_keywords("""
+Responsibilities
+
+1. Build industry leading recommendation system, develop highly scalable classifiers and tools leveraging machine learning
+2. Understand product objectives and machine learning techniques, improve model and recommendation strategy
+3. Understand user behavior and apply Machine Learning algorithms to optimize push notification and production experience
+4. Work with TikTok cross functional teams to grow TikTok in important regional markets
+
+Qualifications
+
+Bachelor's degree (or more) in computer science or a related technical discipline
+-Solid experience with data structures or algorithms
+-Software development experience through hands on coding in a general purpose programming language
+-Experience in one or more of the following areas: machine learning, recommendation systems, data mining or other related areas
+-Strong communication and teamwork skills
+-Passion about technologies and solving challenging problems
+""").split(",")])

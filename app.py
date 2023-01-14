@@ -4,18 +4,21 @@ from dash import html
 from dash import dcc
 import dash_bootstrap_components as dbc
 from dash import Input, Output, State
-import dash_daq as daq
 import base64
 import docx
 import io
-from resume_parse import *
-from gpt3_wrapper import *
+from resume_parse import extract_experiences, extract_projects, extract_skills
+from completions import rewrite_resume, get_keywords, keywords_to_list
+from embeddings import get_embeddings, get_cosine_similarity
+import math
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.UNITED])
 app.layout = dbc.Container(id = "view1",children=[
     html.H1('Resume Optimiser', style={'textAlign':'center'}),
     html.H4('Powered by GPT-3', style={'textAlign':'center'}),
-    html.Div(
+    html.Br(),
+    html.Br(),
+    dbc.Container(
         [
             dbc.Row(
                 [
@@ -40,12 +43,9 @@ app.layout = dbc.Container(id = "view1",children=[
                 ]
             )
         ]
-    )
-
-
+    ,fluid=True) 
 ], fluid=True)
 def parse_contents(contents, filename, jd, boost_score):
-    print(boost_score)
     content_type, content_string = contents.split(',')
     decoded = base64.b64decode(content_string)
     if 'docx' in filename:
@@ -61,12 +61,19 @@ def parse_contents(contents, filename, jd, boost_score):
         resume_dict['skills'] = skills
         resume_dict['projects'] = projects
         # use gpt-3 to extract keywords from jd 
-        keywords = get_keywords(jd)
+        keywords = keywords_to_list(get_keywords(jd))
+        # sort keywords based on cosine similarity to the combination of experience, skills, and projects 
+        combined_embeddings = get_embeddings(experience + skills + projects)
+        sorted_keywords = sorted(keywords, key=lambda x: get_cosine_similarity(combined_embeddings, get_embeddings(x)), reverse=True)
+        # depending on boost_score, adjust number of keywords to use starting from keyword with highest cosine similarity
+        final_keywords = sorted_keywords[ : int(boost_score / 10 * len(sorted_keywords))]
+        # print("ORIGINAL KEYWORDS", keywords)
+        # print("SORTED KEYWORDS", sorted_keywords)
+        # print("FINAL KEYWORDS", final_keywords)
         # use keywords to rewrite resume
-        result = rewrite_resume(resume_dict, keywords, boost_score)
+        result = rewrite_resume(resume_dict, ", ".join(final_keywords), boost_score)
         #print(result)
         return  'NEW EXPERIENCE: \n' + result.get('experience')  + '\n\n NEW SKILLS: \n' + result.get('skills') +'\n\n NEW PROJECTS: \n' + result.get('projects')
-        #return f'OLD EXPERIENCE: {experience} \n\n NEW EXPERIENCE:' + result.get('experience')  + f'\n\n OLD SKILLS: {skills} \n\n NEW SKILLS: ' + result.get('skills') +  f'\n\n OLD PROJECTS: {projects} \n\n NEW PROJECTS: ' + result.get('projects')
     else:
         return 'Invalid file type'
 
