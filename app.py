@@ -11,7 +11,8 @@ from resume_parse import *
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.UNITED])
 app.layout = html.Div(children=[
-    html.H1('Test Dash App', style={'textAlign':'center'}),
+    html.H1('Resume Optimiser', style={'textAlign':'center'}),
+    html.H4('Powered by ChatGPT', style={'textAlign':'center'}),
     html.Div(
         [
             dbc.Row(
@@ -19,17 +20,9 @@ app.layout = html.Div(children=[
                     dbc.Col(html.Div(children = [
                         dcc.Upload(id = "file_upload", children = html.Div(['Drag and Drop or ',
             html.A('Select Files')])),
-                    dcc.Textarea(
-        id='textarea-example',
-        value='Copy Job Description Here',
-        style={'width': '100%', 'height': 300},
-    )
+                     dbc.Input(id="job-description", placeholder="Copy Job Description Here", type="text")
                     ])),
-                    dbc.Col(html.Div(children = [dcc.Textarea(
-        id='output_area',
-        value='Output',
-        style={'width': '100%', 'height': 300},
-    )]))
+                    dbc.Col(html.Div(children = [dbc.Input(id="output_area", placeholder="New Resume", type="text")]))
                 ]
             )
         ]
@@ -54,12 +47,13 @@ def parse_contents(contents, filename):
     Output('output_area','value'), 
     Input('file_upload', 'contents'),
     Input('file_upload', 'filename'),
+    Input('job-description','value')
     )
-def update_output(contents, filename):
+def update_output(contents, filename, description):
     if contents is not None:
         return parse_contents(contents, filename)
+    print(description)
 
 
 if __name__ == "__main__":
     app.run_server(debug=True)
-
