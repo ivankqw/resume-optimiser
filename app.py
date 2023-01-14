@@ -42,17 +42,15 @@ def parse_contents(contents, filename, jd):
         # extract experiences and skills
         experience = extract_experiences(parsed_resume)
         skills = extract_skills(parsed_resume)
-        print("OLD EXPERIENCE: ", experience)
-        print("OLD SKILLS: ", skills)
+        resume_dict = {}
+        resume_dict['experience'] = experience
+        resume_dict['skills'] = skills
         # use gpt-3 to extract keywords from jd 
         keywords = get_keywords(jd)
         # use keywords to rewrite resume
-        result = rewrite_resume({
-            experience: experience,
-            skills: skills
-        }, keywords)
+        result = rewrite_resume(resume_dict, keywords)
         print(result)
-        return "OLD EXPERIENCE: " + experience + "\n\n" + "OLD SKILLS: " + skills + "NEW EXPERIENCE: " + result.get('experience') + "\n\n" + "NEW SKILLS: " + result.get('skills')  
+        return "OLD EXPERIENCE: " + experience + "NEW EXPERIENCE: " + result.get('experience') + "\n\n" + "OLD SKILLS: " + skills +  "\n\n" + "NEW SKILLS: " + result.get('skills')  
     else:
         return 'Invalid file type'
 

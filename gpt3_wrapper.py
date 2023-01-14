@@ -74,15 +74,24 @@ Returns string
 def rewrite_resume(parsed_resume, jd_keywords): 
     experience = parsed_resume.get("experience")
     skills = parsed_resume.get("skills")
+    print("KEYWORDS", jd_keywords)
+    print("SKILLS", skills)
+    print("EXPERIENCE", experience)
 
     experience_prompt = (
-        "Please add the following keywords to this extract of the experience section of a resume. Do not change the format: " +
-        jd_keywords 
+        "Please add the following keywords: " + 
+        jd_keywords + 
+        "to this extract of the experience section of the following resume: " + 
+        experience + 
+        ".And do not change the format and any of the original text: " 
     )
 
     skills_prompt = (
-        "Please add the following keywords to this extract of the skills section of a resume. Do not change the format: " +
-        jd_keywords
+        "Please add the following keywords: " + 
+        jd_keywords + 
+        "to this extract of the skills section of the following resume: " + 
+        skills + 
+        ".And do not change the format and any of the original text: " 
     )
 
     new_experience = get_gpt3_response(experience_prompt, api_key)
@@ -91,9 +100,6 @@ def rewrite_resume(parsed_resume, jd_keywords):
     d = {}
     d['experience'] = new_experience
     d['skills'] = new_skills
-
-    print("FROM GPT-3", new_experience, "\n", new_skills)
-
     return d
 
 print(get_keywords(jd_input))
