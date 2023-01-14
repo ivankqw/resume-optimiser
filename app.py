@@ -5,6 +5,8 @@ from dash import dcc
 import dash_bootstrap_components as dbc
 from dash import Input, Output, State
 import base64
+import docx
+import io
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.UNITED])
 app.layout = html.Div(children=[
@@ -34,19 +36,24 @@ app.layout = html.Div(children=[
 
 
 ])
-def parse_contents(contents, filename, date):
+def parse_contents(contents, filename):
     content_type, content_string = contents.split(',')
     decoded = base64.b64decode(content_string)
-    return decoded
+    if 'docx' in filename:
+        # read docx
+        doc = docx.Document(io.BytesIO(decoded))
+        return '\n\n'.join([paragraph.text for paragraph in doc.paragraphs])
+    else:
+        return 'Invalid file type'
 
 @app.callback(
     Output('output_area','value'), 
     Input('file_upload', 'contents'),
-    State('file_upload', 'filename'),
-    State('file_upload', 'last_modified')
+    Input('file_upload', 'filename'),
     )
-def generate_resume(contents, filename, last_modified):
-    print(parse_contents(contents, filename, last_modified))
+def update_output(contents, filename):
+    if contents is not None:
+        return parse_contents(contents, filename)
 
 
 if __name__ == "__main__":
