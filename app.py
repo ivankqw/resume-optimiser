@@ -4,6 +4,7 @@ from dash import html
 from dash import dcc
 import dash_bootstrap_components as dbc
 from dash import Input, Output, State
+import dash_daq as daq
 import base64
 import docx
 import io
@@ -11,25 +12,31 @@ from resume_parse import *
 from gpt3_wrapper import *
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.UNITED])
-app.layout = html.Div(children=[
+app.layout = html.Div(id = "view1",children=[
     html.H1('Resume Optimiser', style={'textAlign':'center'}),
     html.H4('Powered by ChatGPT', style={'textAlign':'center'}),
     html.Div(
         [
             dbc.Row(
                 [
-                    dbc.Col(html.Div(children = [
+                    dbc.Col(id = "col1", children = [html.Div(children = [
                         dcc.Upload(id = "file_upload", children = html.Div(['Drag and Drop or ',
             html.A('Select Files')])),
                         html.Div(id="file-name",children="No File Uploaded"),
                         html.Br(),
                      dbc.Textarea(id="job-description", placeholder="Copy Job Description Here")
-                    ])),
+                    ])]),
                     dbc.Col(id = "boost", children=[dbc.Label("Bullshit Meter", html_for="slider"),
                     dcc.Slider(id="bullshit", min=0, max=10, step=1, value=3),
-                    dbc.Button("Boost Resume",color="primary",id="boost-btn",n_clicks=0)
+                    html.Div([dbc.Button("Boost Resume",color="primary",id="boost-btn",n_clicks=0),
+                    html.Br(),
+                    html.Br(),
+
+                    dbc.Spinner(html.Div(id="loading"),color="primary")])
+                    
                     ]),
-                    dbc.Col(html.Div(children = [dbc.Textarea(id="output_area", placeholder="New Resume")]))
+                    dbc.Col(html.Div(children = [dbc.Textarea(id="output_area", placeholder="New Resume"), 
+                    html.Div([dbc.Button('Download', id="dl-btn",n_clicks=0), dcc.Download(id="download-text")])]))
                 ]
             )
         ]
@@ -56,8 +63,10 @@ def parse_contents(contents, filename, jd):
         keywords = get_keywords(jd)
         # use keywords to rewrite resume
         result = rewrite_resume(resume_dict, keywords)
-        print(result)
-        return f'OLD EXPERIENCE: {experience} \n\n NEW EXPERIENCE:' + result.get('experience') +  f'\n\n OLD SKILLS: {skills} \n\n NEW SKILLS: ' + result.get('skills') +  f'\n\n OLD PROJECTS: {projects} \n\n NEW PROJECTS: ' + result.get('projects')
+        #print(result)
+        return  'NEW EXPERIENCE: \n' + result.get('experience')  + '\n\n NEW SKILLS: \n' + result.get('skills') +'\n\n NEW PROJECTS: \n' + result.get('projects')
+            
+        #return f'OLD EXPERIENCE: {experience} \n\n NEW EXPERIENCE:' + result.get('experience')  + f'\n\n OLD SKILLS: {skills} \n\n NEW SKILLS: ' + result.get('skills') +  f'\n\n OLD PROJECTS: {projects} \n\n NEW PROJECTS: ' + result.get('projects')
     else:
         return 'Invalid file type'
 
@@ -74,17 +83,32 @@ def show_upload_name(filename):
 
 @app.callback(
     Output('output_area','value'),
-    Input('boost-btn','n_clicks'), 
+    Output('loading','children'),
+    Input('boost-btn','n_clicks'),
     State('file_upload', 'contents'),
     State('file_upload', 'filename'),
     State('job-description','value'),
     State('bullshit','value')
     )
-def update_output(n_clicks,contents, filename, jd, bullshit):
-    if contents is not None:
-        return parse_contents(contents, filename, jd)
-    print(jd)
 
+def update_output(n_clicks,contents, filename, jd, bullshit):
+    if contents and filename and jd and bullshit and n_clicks:
+        x= parse_contents(contents, filename, jd)
+        return x, "Done!"
+    #print(jd)
+
+@app.callback(
+    Output('download-text','data'),
+    Input('dl-btn','n_clicks'),
+    State('output_area','value')
+)
+
+def download_file(n_clicks,value):
+    if n_clicks:
+        mydoc = docx.Document()
+        mydoc.add_paragraph(value)
+        mydoc.save("new_resume.docx")
+        return dcc.send_file('new_resume.docx')
 
 if __name__ == "__main__":
     app.run_server(debug=True)

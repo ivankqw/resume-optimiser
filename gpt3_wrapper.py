@@ -8,7 +8,8 @@ api_key = environ.get('OPENAI_KEY')
 # GPT-3 endpoint
 url = "https://api.openai.com/v1/completions"
 
-jd_input = """
+"""
+jd_input = 
 Responsibilities
 
 Build Machine Learning models to respond to and mitigate risks in Global Payments products;
@@ -83,17 +84,45 @@ def rewrite_resume(parsed_resume, jd_keywords):
     experience = parsed_resume.get("experience")
     skills = parsed_resume.get("skills")
     projects = parsed_resume.get("projects")
-    
     new_experience = get_gpt3_response(get_resume_prompt(jd_keywords, experience), api_key)
     new_skills = get_gpt3_response(get_resume_prompt(jd_keywords, skills), api_key)
     new_projects = get_gpt3_response(get_resume_prompt(jd_keywords, projects), api_key)
+    
+    x= new_experience.count('.')
+    print(new_experience)
+    print(x)
+    if x:
+        new_experience= new_experience.replace('\n\n','\n\u2022 ',1)
+        new_experience = new_experience.replace('\n',' ')
+        new_experience = new_experience.replace('.','\n\u2022',new_experience.count('.')-1)
+    else:
+        new_experience = new_experience.replace('\n\n','\n\u2022',new_experience.count('.')-1)
+        new_experience = new_experience.replace('\n','\n\u2022',new_experience.count('.')-1)
+    
+    #print(new_experience)
+    new_skills =new_skills.replace('.','\n\u2022',new_skills.count('.')-1)
+    #print(new_skills)
+    #new_projects = '\u2022'+ new_projects
+    
+    y= new_projects.count('.')
+    print(new_projects)
+    print(y)
+    if y:
+        new_projects=new_projects.replace('\n\n','\n\u2022 ',1)
+        new_projects = new_projects.replace('\n',' ')
+        new_projects=new_projects.replace('.','\n\u2022',new_projects.count('.')-1)
+    else:
+        new_projects=new_projects.replace('\n\n','\n\u2022',new_projects.count('.')-1)
+        new_projects=new_projects.replace('\n','\n\u2022',new_projects.count('.')-1)
 
+    #print(new_projects)
     d = {}
     d['experience'] = new_experience
     d['skills'] = new_skills
     d['projects'] = new_projects
+    
     return d
 
-print(get_keywords(jd_input))
+#print(get_keywords(jd_input))
 
 
