@@ -15,7 +15,7 @@ import math
 x = ''
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.UNITED])
 app.layout = dbc.Container(id = "view1",children=[
-    html.H1('Resume Optimiser', style={'textAlign':'center', 'margin':'40px'}),
+    html.H1('Resume Optimiser', style={'textAlign':'center'}),
     html.H4('Powered by GPT-3', style={'textAlign':'center'}),
     html.Br(),
     html.Br(),
@@ -28,7 +28,7 @@ app.layout = dbc.Container(id = "view1",children=[
             html.A('Select Files')])),
                         html.Div(id="file-name",children="No File Uploaded"),
                         html.Br(),
-                     dbc.Textarea(id="job-description", placeholder="Copy Job Description Here")
+                     dbc.Textarea(id="job-description", className="text-area", placeholder="Copy Job Description Here")
                     ])]),
                     dbc.Col(id = "boost", children=[dbc.Label("Boost Meter", html_for="slider"),
                     dcc.Slider(id="boost_score", min=0, max=10, step=1, value=3),
@@ -39,8 +39,14 @@ app.layout = dbc.Container(id = "view1",children=[
                     dbc.Spinner(children=[html.Div(id="loading")],color="primary")])
                     
                     ]),
-                    dbc.Col(html.Div(children = [dbc.Select(id="filter", value='1', options =[{"label": "Experience", "value": "1"}, {"label": "Skills", "value": "2"},{"label": "Projects", "value": "3"}]), 
-                    dbc.Textarea(id="old_area", className='mt-2', placeholder="Before"),dbc.Textarea(id="new_area", className='mt-2', placeholder="✨ After ✨"), 
+                    # dbc.Col(html.Div(children = [dbc.Select(id="filter", value='1', options =[{"label": "Experience", "value": "1"}, {"label": "Skills", "value": "2"},{"label": "Projects", "value": "3"}]), 
+                    dbc.Col(html.Div(children = [dbc.Tabs(id="filter", active_tab='tab-1', children =[
+                        dbc.Tab(label="Experience", tab_id="tab-1"),
+                        dbc.Tab(label="Skills", tab_id="tab-2"),
+                        dbc.Tab(label="Projects", tab_id="tab-3")
+                        #{"label": "Experience", "value": "1"}, {"label": "Skills", "value": "2"},{"label": "Projects", "value": "3"}
+                        ]), 
+                    dbc.Textarea(id="old_area", className='text-area mt-2', placeholder="Before"),dbc.Textarea(id="new_area", className='text-area mt-2', placeholder="✨ After ✨"), 
                     html.Div([dbc.Button('Download',className='mt-2', id="dl-btn",n_clicks=0), dcc.Download(id="download-text")])]))
                 ]
             )
@@ -96,7 +102,7 @@ def show_upload_name(filename):
     Output('new_area','value'),
     Output('loading','children'),
     Input('boost-btn','n_clicks'),
-    Input("filter",'value'),
+    Input("filter",'active_tab'),
     State('file_upload', 'contents'),
     State('file_upload', 'filename'),
     State('job-description','value'),
@@ -112,11 +118,11 @@ def update_output(n_clicks, filter, contents, filename, jd, boost_score):
         #new_output = 'NEW EXPERIENCE: \n' + x[3].get('experience')  + '\n\n NEW SKILLS: \n' + x[3].get('skills') +'\n\n NEW PROJECTS: \n' + x[3].get('projects')
         return x[0],x[3].get('experience'),"Done!"
     elif triggered_id == 'filter':
-        if filter == '1':
+        if filter == 'tab-1':
             return x[0],x[3].get('experience'),"Done!"
-        if filter =='2':
+        if filter =='tab-2':
             return x[1],x[3].get('skills'),"Done!"
-        if filter == '3':
+        if filter == 'tab-3':
             return x[2],x[3].get('projects'),"Done!"
 
 @app.callback(
