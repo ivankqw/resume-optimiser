@@ -3,7 +3,7 @@ import dash
 from dash import html
 from dash import dcc
 import dash_bootstrap_components as dbc
-from dash import Input, Output, State
+from dash import Input, Output, State, ctx
 import base64
 import docx
 import io
@@ -12,6 +12,7 @@ from completions import rewrite_resume, get_keywords, keywords_to_list
 from embeddings import get_embeddings, get_cosine_similarity
 import math
 
+x = ''
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.UNITED])
 app.layout = dbc.Container(id = "view1",children=[
     html.H1('Resume Optimiser', style={'textAlign':'center'}),
@@ -38,7 +39,8 @@ app.layout = dbc.Container(id = "view1",children=[
                     dbc.Spinner(html.Div(id="loading"),color="primary")])
                     
                     ]),
-                    dbc.Col(html.Div(children = [dbc.Textarea(id="output_area", placeholder="New Resume"), 
+                    dbc.Col(html.Div(children = [dbc.Select(id="filter", options =[{"label": "Experience", "value": "1"}, {"label": "Skills", "value": "2"},{"label": "Projects", "value": "3"},{"label": "All", "value": "4"},]), 
+                    dbc.Textarea(id="old_area", placeholder="Old Resume"),dbc.Textarea(id="new_area", placeholder="New Resume"), 
                     html.Div([dbc.Button('Download', id="dl-btn",n_clicks=0), dcc.Download(id="download-text")])]))
                 ]
             )
@@ -73,7 +75,8 @@ def parse_contents(contents, filename, jd, boost_score):
         # use keywords to rewrite resume
         result = rewrite_resume(resume_dict, ", ".join(final_keywords), boost_score)
         #print(result)
-        return  'NEW EXPERIENCE: \n' + result.get('experience')  + '\n\n NEW SKILLS: \n' + result.get('skills') +'\n\n NEW PROJECTS: \n' + result.get('projects')
+        return experience, skills, projects, result
+        #return  'NEW EXPERIENCE: \n' + result.get('experience')  + '\n\n NEW SKILLS: \n' + result.get('skills') +'\n\n NEW PROJECTS: \n' + result.get('projects')
     else:
         return 'Invalid file type'
 
@@ -89,9 +92,11 @@ def show_upload_name(filename):
         return "No File Uploaded"
 
 @app.callback(
-    Output('output_area','value'),
+    Output('old_area','value'),
+    Output('new_area','value'),
     Output('loading','children'),
     Input('boost-btn','n_clicks'),
+    Input("filter",'value'),
     State('file_upload', 'contents'),
     State('file_upload', 'filename'),
     State('job-description','value'),
@@ -99,14 +104,30 @@ def show_upload_name(filename):
     )
 
 def update_output(n_clicks,contents, filename, jd, boost_score):
-    if contents and filename and jd and boost_score and n_clicks:
-        x= parse_contents(contents, filename, jd, boost_score)
-        return x, "Done!"
+    triggered_id  = ctx.triggered_id
+    global x
+    if triggered_id == 'boost-btn':
+        x = parse_contents(contents, filename, jd, boost_score)
+        old_output = f'OLD EXPERIENCE: {x[0]}'+ f'\n\n OLD SKILLS: {x[1]}' + f'\n\n OLD PROJECTS: {x[2]}'
+        new_output = 'NEW EXPERIENCE: \n' + x[3].get('experience')  + '\n\n NEW SKILLS: \n' + x[3].get('skills') +'\n\n NEW PROJECTS: \n' + x[3].get('projects')
+        return old_output, output, "Done!"
+    elif triggered_id == 'filter':
+        if filter == '1':
+            return x[0],x[3].get('experience'),"Done!"
+        if filter =='2':
+            return x[1],x[3].get('skills'),"Done!"
+        if filter == '3':
+            return x[2],x[3].get('projects'),"Done!"
+        if filter == '4':
+            old_output = f'OLD EXPERIENCE: {x[0]}'+ f'\n\n OLD SKILLS: {x[1]}' + f'\n\n OLD PROJECTS: {x[2]}'
+            new_output = 'NEW EXPERIENCE: \n' + x[3].get('experience')  + '\n\n NEW SKILLS: \n' + x[3].get('skills') +'\n\n NEW PROJECTS: \n' + x[3].get('projects')
+            return old_output, new_output, "Done!"
+
 
 @app.callback(
     Output('download-text','data'),
     Input('dl-btn','n_clicks'),
-    State('output_area','value')
+    State('new_area','value')
 )
 
 def download_file(n_clicks,value):
