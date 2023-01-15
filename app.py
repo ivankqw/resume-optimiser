@@ -15,7 +15,7 @@ import math
 x = ''
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.UNITED])
 app.layout = dbc.Container(id = "view1",children=[
-    html.H1('Resume Optimiser', style={'textAlign':'center'}),
+    html.H1('Resume Optimiser', style={'textAlign':'center', 'margin':'40px'}),
     html.H4('Powered by GPT-3', style={'textAlign':'center'}),
     html.Br(),
     html.Br(),
@@ -36,12 +36,12 @@ app.layout = dbc.Container(id = "view1",children=[
                     html.Br(),
                     html.Br(),
 
-                    dbc.Spinner(html.Div(id="loading"),color="primary")])
+                    dbc.Spinner(children=[html.Div(id="loading")],color="primary")])
                     
                     ]),
-                    dbc.Col(html.Div(children = [dbc.Select(id="filter", options =[{"label": "Experience", "value": "1"}, {"label": "Skills", "value": "2"},{"label": "Projects", "value": "3"},{"label": "All", "value": "4"},]), 
-                    dbc.Textarea(id="old_area", placeholder="Old Resume"),dbc.Textarea(id="new_area", placeholder="New Resume"), 
-                    html.Div([dbc.Button('Download', id="dl-btn",n_clicks=0), dcc.Download(id="download-text")])]))
+                    dbc.Col(html.Div(children = [dbc.Select(id="filter", value='1', options =[{"label": "Experience", "value": "1"}, {"label": "Skills", "value": "2"},{"label": "Projects", "value": "3"}]), 
+                    dbc.Textarea(id="old_area", className='mt-2', placeholder="Before"),dbc.Textarea(id="new_area", className='mt-2', placeholder="✨ After ✨"), 
+                    html.Div([dbc.Button('Download',className='mt-2', id="dl-btn",n_clicks=0), dcc.Download(id="download-text")])]))
                 ]
             )
         ]
@@ -108,9 +108,9 @@ def update_output(n_clicks, filter, contents, filename, jd, boost_score):
     global x
     if triggered_id == 'boost-btn':
         x = parse_contents(contents, filename, jd, boost_score)
-        old_output = f'OLD EXPERIENCE: {x[0]}'+ f'\n\n OLD SKILLS: {x[1]}' + f'\n\n OLD PROJECTS: {x[2]}'
-        new_output = 'NEW EXPERIENCE: \n' + x[3].get('experience')  + '\n\n NEW SKILLS: \n' + x[3].get('skills') +'\n\n NEW PROJECTS: \n' + x[3].get('projects')
-        return old_output, new_output, "Done!"
+        #old_output = f'OLD EXPERIENCE: {x[0]}'+ f'\n\n OLD SKILLS: {x[1]}' + f'\n\n OLD PROJECTS: {x[2]}'
+        #new_output = 'NEW EXPERIENCE: \n' + x[3].get('experience')  + '\n\n NEW SKILLS: \n' + x[3].get('skills') +'\n\n NEW PROJECTS: \n' + x[3].get('projects')
+        return x[0],x[3].get('experience'),"Done!"
     elif triggered_id == 'filter':
         if filter == '1':
             return x[0],x[3].get('experience'),"Done!"
@@ -118,11 +118,6 @@ def update_output(n_clicks, filter, contents, filename, jd, boost_score):
             return x[1],x[3].get('skills'),"Done!"
         if filter == '3':
             return x[2],x[3].get('projects'),"Done!"
-        if filter == '4':
-            old_output = f'OLD EXPERIENCE: {x[0]}'+ f'\n\n OLD SKILLS: {x[1]}' + f'\n\n OLD PROJECTS: {x[2]}'
-            new_output = 'NEW EXPERIENCE: \n' + x[3].get('experience')  + '\n\n NEW SKILLS: \n' + x[3].get('skills') +'\n\n NEW PROJECTS: \n' + x[3].get('projects')
-            return old_output, new_output, "Done!"
-
 
 @app.callback(
     Output('download-text','data'),

@@ -1,6 +1,7 @@
 import requests
 from os import environ
 from dotenv import load_dotenv 
+import re
 
 load_dotenv()
 api_key = environ.get('OPENAI_KEY')
@@ -60,8 +61,7 @@ Get Resume Prompt by different sections
 """
 
 def get_resume_prompt(jd_keywords, section_type, section, boost_score):
-    pct_tokens = str(boost_score * 10) + "%"
-    return f'Please try to add {pct_tokens} of the following keywords: {jd_keywords} to this extract of the \
+    return f'Please try to add the following keywords: {jd_keywords} to this extract of the \
         {section_type} section of the following resume: {section}. Do not change the format and any of the original text \
             while making the resulting text seem believable:'
 
@@ -82,30 +82,12 @@ def rewrite_resume(parsed_resume, jd_keywords, boost_score):
     x= new_experience.count('.')
     #Replace opening \n
     new_experience= new_experience.replace('\n\n','',1)
-    #Replace \n between job and job description
-    new_experience= new_experience.replace('\n\n','\n\u2022',1)
-    #Remove the rest
-    #If have fullstop
-    if x:
-        new_experience = new_experience.replace('\n',' ')
-        #replace fullstops
-        new_experience = new_experience.replace('.','\n\u2022',x-1)
-    else:
-        #replace all \n
-        new_experience = new_experience.replace('\n','\n\u2022')
+    new_experience = re.sub(r'(?<!\n)\n(?=\n|$)', '\n\n', new_experience)
     
     y= new_projects.count('.')
     #Replace opening \n
-    new_projects= new_projects.replace('\n\n','\n\u2022',1)
-    #Remove the rest
-    #If have fullstop
-    if y:
-        new_projects = new_projects.replace('\n',' ')
-        #replace fullstops
-        new_projects = new_projects.replace('.','\n\u2022',y-1)
-    else:
-        #replace all \n
-        new_projects = new_projects.replace('\n','\n\u2022')
+    # new_projects= new_projects.replace('\n\n','\n\u2022',1)
+    new_projects = re.sub(r'(?<!\n)\n(?=\n|$)', '\n\n', new_projects)
 
     d = {}
     d['experience'] = new_experience

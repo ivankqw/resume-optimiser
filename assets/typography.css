@@ -16,6 +16,18 @@ body {
     text-align: left;
 }
 
+#old_area {
+    width: 500px;
+    height: 200px;
+    text-align: left;
+}
+
+#new_area {
+    width: 500px;
+    height: 200px;
+    text-align: left;
+}
+
 #file_upload {
     border: dotted;
     width: 500px;
