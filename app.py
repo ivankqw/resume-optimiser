@@ -103,7 +103,7 @@ def show_upload_name(filename):
     State('boost_score','value')
     )
 
-def update_output(n_clicks,contents, filename, jd, boost_score):
+def update_output(n_clicks, filter, contents, filename, jd, boost_score):
     triggered_id  = ctx.triggered_id
     global x
     if triggered_id == 'boost-btn':
