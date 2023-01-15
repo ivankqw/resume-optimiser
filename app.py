@@ -39,7 +39,7 @@ app.layout = dbc.Container(id = "view1",children=[
                     
                     ]),
                     dbc.Col(html.Div(children = [dbc.Textarea(id="output_area", placeholder="New Resume"), 
-                    html.Div([dbc.Button('Download', id="dl-btn",n_clicks=0), dcc.Download(id="download-text")])]))
+                    html.Div([dbc.Button('Download', id="dl-btn", className="mt-2 float-right", n_clicks=0), dcc.Download(id="download-text")])]))
                 ]
             )
         ]
